@@ -1,0 +1,117 @@
+from main.src.exchange import Exchange
+from main.src.logger import Logger
+from main.src.domain_model import Bet, CancelBet, InactiveEvent, LimitBet, MarketBet, ExecutedBet, ExecutedBets
+from json import loads, dumps
+import copy
+
+
+class BetExecutor:
+    def __init__(self, logger: Logger, redis_client, kinesis_client, output_stream_name: str):
+        self._exchange = Exchange(redis_client=redis_client)
+        self._logger = logger
+        self._kinesis_client = kinesis_client
+        self._output_stream_name = output_stream_name
+
+    def handle_record(self, record: map):
+        data = loads(record['Data'].decode("utf-8"))
+        action = data["action"]
+        value = data["value"]
+
+        if action == "NEW_LIMIT_BET":
+            limit_bet = LimitBet(**value)
+            self._handle_limit_bet(bet=limit_bet)
+        elif action == "NEW_MARKET_BET":
+            market_bet = MarketBet(**value)
+            self._handle_market_bet(bet=market_bet)
+        elif action == "INACTIVE_EVENT":
+            inactive_event = InactiveEvent(**value)
+            self._handle_inactive_event(event=inactive_event)
+        elif action == "CANCEL_BET":
+            cancel_bet = CancelBet(**value)
+            self._handle_cancel_bet(bet=cancel_bet)
+        else:
+            self._logger.error(f"No valid matching action: {action}")
+
+    def _handle_limit_bet(self, bet: LimitBet):
+        generic_bet = Bet.fromlimitbet(limit_bet=bet)
+        modified_bet = copy.deepcopy(generic_bet)
+        status_details = self._exchange.get_status(event_id=bet.event_id)
+        self._logger.debug(f"Event status details: {status_details.status}, {status_details.home_team_abbrev}, {status_details.away_team_abbrev}")
+
+        executed_bets = []
+
+        if self._is_inactive_event(status_details):
+            # TODO: handle expired event similar to canceled bet
+            self._logger.debug("Expired event")
+            return
+
+        is_home_team = True if bet.on_team_abbrev == status_details.home_team_abbrev else False
+        other_team_abbrev = status_details.home_team_abbrev if status_details.home_team_abbrev != bet.on_team_abbrev else status_details.away_team_abbrev
+
+        while True:
+            popped_bet = self._exchange.pop_bet(
+                event_id=bet.event_id,
+                team_abbrev=other_team_abbrev,
+                is_home_team=not is_home_team
+            )
+            self._logger.debug(f"popped event: {str(popped_bet)}")
+            if (popped_bet and modified_bet.better_than_or_equal(other=popped_bet, other_is_on_home=not is_home_team)
+               and modified_bet.amount > 0):
+                to_subtract_modified_bet, to_subtract_popped_bet = modified_bet.determine_amounts(other=popped_bet, other_is_on_home=not is_home_team)
+
+                modified_bet.amount -= to_subtract_modified_bet
+                popped_bet.amount -= to_subtract_popped_bet
+
+                tmp_bet_copy = copy.deepcopy(modified_bet)
+                tmp_bet_copy.amount = to_subtract_modified_bet
+
+                tmp_popped_bet_copy = copy.deepcopy(popped_bet)
+                tmp_popped_bet_copy.amount = to_subtract_popped_bet
+
+                bet_status = "EXECUTED" if modified_bet.amount == 0 else "PARTIALLY_EXECUTED"
+                popped_bet_status = "EXECUTED" if popped_bet.amount == 0 else "PARTIALLY_EXECUTED"
+
+                executed_bet = ExecutedBets.frombets(
+                    bet=tmp_bet_copy,
+                    bet_status=bet_status,
+                    popped_bet=tmp_popped_bet_copy,
+                    popped_bet_status=popped_bet_status,
+                    popped_bet_is_on_home=not is_home_team
+                )
+
+                executed_bets.append(executed_bet)
+
+                # push the popped bet back on the exchange
+                if popped_bet and popped_bet.amount > 0:
+                    self._exchange.submit_bet(bet=popped_bet)
+            else:
+                # push the popped bet back on the exchange
+                if popped_bet and popped_bet.amount > 0:
+                    self._exchange.submit_bet(bet=popped_bet)
+                break
+
+        # push the modified bet to the exchange if out of viable bets on the queue
+        if modified_bet.amount > 0:
+            self._exchange.submit_bet(bet=modified_bet)
+
+        for executed_bet in executed_bets:
+            self._kinesis_client.put_record(
+                StreamName=self._output_stream_name,
+                Data=dumps(str(executed_bet)),
+                PartitionKey=executed_bet.event_id
+            )
+
+    def _handle_market_bet(self, bet: MarketBet):
+        pass
+
+    def _handle_inactive_event(self, event: InactiveEvent):
+        pass
+
+    def _handle_cancel_bet(self, bet: CancelBet):
+        pass
+
+    @staticmethod
+    def _is_inactive_event(status_details):
+        if not status_details or status_details.status == "INACTIVE":
+            return True
+        return False

@@ -1,0 +1,10 @@
+{
+  "action": "CANCEL_BET",
+  "timestamp": "2020-11-14T17:56:38Z",
+  "value": {
+    "event_id": "202011080kan",
+    "sport": "football",
+    "bet_id": 1,
+    "brokerage_id": 1
+  }
+}

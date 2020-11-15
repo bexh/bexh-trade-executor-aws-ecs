@@ -1,0 +1,4 @@
+pytest
+redis
+boto3
+kinesis-python
