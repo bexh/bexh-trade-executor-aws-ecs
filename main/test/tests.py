@@ -9,7 +9,7 @@ from main.test.mock_kinesis import MockKinesis
 from main.test.mock_redis import MockRedis
 from main.src.bet_executer import BetExecutor
 from main.src.logger import LoggerFactory, Logger
-from main.src.domain_model import StatusDetails, Bet
+from main.src.domain_model import StatusDetails, Bet, ExecutedBets, ExecutedBet
 
 
 @pytest.fixture
@@ -68,10 +68,11 @@ def get_bet_from_pq(values: list):
     return bet
 
 
-def compare_bets_on_exchange(expected_output_path: str, redis_client, team_abbrevs: [str], event_id: str) -> bool:
+def compare_bets_on_exchange(expected_output_path: str, redis_client, kinesis_client, team_abbrevs: [str], event_id: str, output_stream_name: str) -> bool:
     with open(expected_output_path) as f:
         exp_details = load(f)
     for team_abbrev in team_abbrevs:
+        # Check redis bets
         exp_exchange_bets = list(map(lambda x: Bet(**x), exp_details["redis"][team_abbrev]))
         actual_exchange_bets = []
         exchange_bet = get_bet_from_pq(redis_client.zpopmax(name=f"pq:{event_id}:{team_abbrev}"))
@@ -83,6 +84,43 @@ def compare_bets_on_exchange(expected_output_path: str, redis_client, team_abbre
         for exp_exchange_bet in exp_exchange_bets:
             actual_exchange_bet = list(filter(lambda x: x.bet_id == exp_exchange_bet.bet_id, actual_exchange_bets))[0]
             assert actual_exchange_bet == exp_exchange_bet, "Expected bet on exchange does not match actual"
+
+    # Check kinesis bets
+    exp_kinesis_bets = exp_details["kinesis"]
+
+    def convert_to_executed_bets(exp_bet: map):
+        executed_bet_list = list(map(lambda x: ExecutedBet(**x), exp_bet["bets"]))
+        exp_bet["bets"] = executed_bet_list
+        if "execution_time" in exp_bet:
+            del exp_bet["execution_time"]
+        return ExecutedBets(**exp_bet)
+
+    assert len(exp_kinesis_bets) == len(kinesis_client.streams[output_stream_name]), "Length of expected kinesis records does not match"
+    exp_executed_bets = list(map(convert_to_executed_bets, exp_kinesis_bets))
+    actual_executed_bets = list(map(lambda x: convert_to_executed_bets(loads(x)), kinesis_client.streams[output_stream_name]))
+    for i in range(len(exp_executed_bets)):
+        exp_bet = exp_executed_bets[i]
+        actual_bet = actual_executed_bets[i]
+        if (
+            exp_bet.event_id == actual_bet.event_id and
+            exp_bet.sport == actual_bet.sport and
+            exp_bet.odds == actual_bet.odds and
+            exp_bet.winning_team_abbrev == actual_bet.winning_team_abbrev and
+            len(exp_bet.bets) == len(actual_bet.bets)
+        ):
+            for j in range(len(exp_bet.bets)):
+                if (
+                    exp_bet.bets[j].bet_id == actual_bet.bets[j].bet_id and
+                    exp_bet.bets[j].brokerage_id == actual_bet.bets[j].brokerage_id and
+                    exp_bet.bets[j].user_id == actual_bet.bets[j].user_id and
+                    exp_bet.bets[j].amount == actual_bet.bets[j].amount and
+                    exp_bet.bets[j].status == actual_bet.bets[j].status
+                ):
+                    pass
+                else:
+                    assert False, "Executed bets do not match"
+        else:
+            assert False, "Executed bets do not match"
 
 
 def execute_and_compare(
@@ -106,8 +144,10 @@ def execute_and_compare(
     compare_bets_on_exchange(
         expected_output_path=test_output_path,
         redis_client=redis_client,
+        kinesis_client=kinesis_client,
         team_abbrevs=["DEN", "KAN"],
-        event_id="202012060kan"
+        event_id="202012060kan",
+        output_stream_name=output_kinesis_stream_name
     )
 
 
