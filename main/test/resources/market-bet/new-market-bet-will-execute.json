@@ -1,0 +1,31 @@
+[
+  {
+    "action": "NEW_LIMIT_BET",
+    "timestamp": "2020-11-14T17:56:38Z",
+    "value": {
+      "event_id": "202012060kan",
+      "sport": "football",
+      "bet_id": 1,
+      "brokerage_id": 1,
+      "user_id": 1,
+      "amount": 20.00,
+      "odds": 200,
+      "order_type": "limit",
+      "on_team_abbrev": "KAN"
+    }
+  },
+  {
+    "action": "NEW_MARKET_BET",
+    "timestamp": "2020-11-14T17:56:38Z",
+    "value": {
+      "event_id": "202012060kan",
+      "sport": "football",
+      "bet_id": 2,
+      "brokerage_id": 1,
+      "user_id": 1,
+      "amount": 5.00,
+      "order_type": "market",
+      "on_team_abbrev": "DEN"
+    }
+  }
+]

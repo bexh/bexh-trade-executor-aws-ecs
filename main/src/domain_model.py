@@ -1,12 +1,25 @@
 from json import dumps
+from main.src.utils import get_current_utc_iso
 
 
 class CancelBet:
-    def __init__(self, event_id: str, sport: str, bet_id: int, brokerage_id: int):
+    def __init__(
+        self,
+        event_id: str,
+        sport: str,
+        bet_id: int,
+        brokerage_id: int,
+        user_id: int,
+        odds: int,
+        on_team_abbrev: str
+    ):
         self.event_id = event_id
         self.sport = sport
         self.bet_id = bet_id
         self.brokerage_id = brokerage_id
+        self.user_id = user_id
+        self.odds = odds
+        self.on_team_abbrev = on_team_abbrev
 
 
 class InactiveEvent:
@@ -80,24 +93,39 @@ class MarketBet:
 
 
 class Bet:
-    def __init__(self,
-                 event_id: str,
-                 sport: str,
-                 bet_id: int,
-                 brokerage_id: int,
-                 user_id: int,
-                 amount: float,
-                 odds: int,
-                 on_team_abbrev: str
-                 ):
+    def __init__(
+        self,
+        event_id: str,
+        sport: str,
+        bet_id: int,
+        brokerage_id: int,
+        user_id: int,
+        on_team_abbrev: str,
+        amount: float = None,
+        odds: int = None
+    ):
         self.event_id = event_id
         self.sport = sport
         self.bet_id = bet_id
         self.brokerage_id = brokerage_id
         self.user_id = user_id
+        self.on_team_abbrev = on_team_abbrev
         self.amount = amount
         self.odds = odds
-        self.on_team_abbrev = on_team_abbrev
+
+    def __eq__(self, other):
+        if (
+            self.event_id == other.event_id and
+            self.sport == other.sport and
+            self.bet_id == other.bet_id and
+            self.brokerage_id == other.brokerage_id and
+            self.user_id == other.user_id and
+            self.amount == other.amount and
+            self.odds == other.odds and
+            self.on_team_abbrev == other.on_team_abbrev
+        ):
+            return True
+        return False
 
     @classmethod
     def fromlimitbet(cls, limit_bet: LimitBet):
@@ -112,11 +140,34 @@ class Bet:
             on_team_abbrev=limit_bet.on_team_abbrev
         )
 
+    @classmethod
+    def frommarketbet(cls, market_bet: MarketBet):
+        return cls(
+            event_id=market_bet.event_id,
+            sport=market_bet.sport,
+            bet_id=market_bet.bet_id,
+            brokerage_id=market_bet.brokerage_id,
+            user_id=market_bet.user_id,
+            amount=market_bet.amount,
+            on_team_abbrev=market_bet.on_team_abbrev
+        )
+
+    @classmethod
+    def fromcancelbet(cls, cancel_bet: CancelBet):
+        return cls(
+            event_id=cancel_bet.event_id,
+            sport=cancel_bet.sport,
+            bet_id=cancel_bet.bet_id,
+            brokerage_id=cancel_bet.brokerage_id,
+            user_id=cancel_bet.user_id,
+            on_team_abbrev=cancel_bet.on_team_abbrev
+        )
+
     def better_than_or_equal(self, other, other_is_on_home: bool) -> bool:
-        if not other_is_on_home:
+        if other_is_on_home:
             return True if self.odds <= other.odds else False
         else:
-            return True if other.odds <= self.odds else True
+            return True if other.odds >= self.odds else False
 
     def determine_amounts(self, other, other_is_on_home: bool) -> (float, float):
         bet_odds = other.odds * -1 if other_is_on_home else other.odds
@@ -126,6 +177,19 @@ class Bet:
         else:
             bet_amount = round(other.amount * (abs(bet_odds) / 100), 2) if bet_odds < 0 else round(other.amount / (bet_odds / 100), 2)
             return bet_amount, other.amount
+
+    def __repr__(self):
+        bet_dict = {
+            "event_id": self.event_id,
+            "sport": self.sport,
+            "bet_id": self.bet_id,
+            "brokerage_id": self.brokerage_id,
+            "user_id": self.user_id,
+            "amount": self.amount,
+            "odds": self.odds,
+            "on_team_abbrev": self.on_team_abbrev
+        }
+        return dumps(bet_dict)
 
     def __str__(self):
         bet_dict = {
@@ -152,6 +216,14 @@ class StatusDetails:
         self.home_team_abbrev = home_team_abbrev
         self.away_team_abbrev = away_team_abbrev
 
+    def __str__(self):
+        dict_form = {
+            "status": self.status,
+            "home_team_abbrev": self.home_team_abbrev,
+            "away_team_abbrev": self.away_team_abbrev
+        }
+        return dumps(dict_form)
+
 
 class ExecutedBet:
     def __init__(self, bet_id: int, brokerage_id: int, user_id: int, amount: float, status: str):
@@ -160,7 +232,7 @@ class ExecutedBet:
         :param brokerage_id:
         :param user_id:
         :param amount:
-        :param status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT"]
+        :param status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "NOT_ENOUGH_VOLUME"]
         """
         self.bet_id = bet_id
         self.brokerage_id = brokerage_id
@@ -172,7 +244,7 @@ class ExecutedBet:
     def frombet(cls, bet: Bet, status: str):
         """
         :param bet:
-        :param status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT"]
+        :param status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "NOT_ENOUGH_VOLUME"]
 
         :return:
         """
@@ -199,20 +271,25 @@ class ExecutedBets:
         self,
         event_id: str,
         sport: str,
-        odds: int,
-        bets: [ExecutedBet]
+        bets: [ExecutedBet],
+        odds: int = None,
+        winning_team_abbrev: str = None
     ):
         self.event_id = event_id
         self.sport = sport
         self.odds = odds
+        self.execution_time = get_current_utc_iso()
         self.bets = bets
+        self.winning_team_abbrev = winning_team_abbrev
 
     def __str__(self):
         exec_bets_map = {
             "event_id": self.event_id,
             "sport": self.sport,
             "odds": self.odds,
-            "bets": list(map(lambda bet: bet.as_map(), self.bets))
+            "execution_time": self.execution_time,
+            "bets": list(map(lambda bet: bet.as_map(), self.bets)),
+            "winning_team_abbrev": self.winning_team_abbrev
         }
         return dumps(exec_bets_map)
 
@@ -227,9 +304,9 @@ class ExecutedBets:
     ):
         """
         :param bet:
-        :param bet_status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT"]
+        :param bet_status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "NOT_ENOUGH_VOLUME"]
         :param popped_bet:
-        :param popped_bet_status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT"]
+        :param popped_bet_status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "NOT_ENOUGH_VOLUME"]
 
         :param popped_bet_is_on_home:
         :return:

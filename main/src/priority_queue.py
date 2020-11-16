@@ -13,3 +13,9 @@ class PriorityQueue:
 
     def pop_max(self, queue_name: str):
         return self._r.zpopmax(name=queue_name)
+
+    def get_items_in_range(self, queue_name: str, min_score: int, max_score: int):
+        return self._r.zrangebyscore(name=queue_name, min=min_score, max=max_score, withscores=True)
+
+    def remove_items(self, queue_name, *values):
+        self._r.zrem(queue_name, *values)

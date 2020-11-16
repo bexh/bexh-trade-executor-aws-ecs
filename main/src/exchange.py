@@ -35,3 +35,14 @@ class Exchange:
         res = self._r.get(name=f"event:{event_id}")
         status_details = StatusDetails(**loads(res.decode("utf-8"))) if res else None
         return status_details
+
+    def remove_bet(self, bet: Bet) -> Bet:
+        queue_name = f"pq:{bet.event_id}:{bet.on_team_abbrev}"
+        values = self._pq.get_items_in_range(queue_name=queue_name, min_score=bet.odds, max_score=bet.odds)
+        for value in values:
+            data, score = value
+            potential_match_bet = Bet(**loads(data.decode("utf-8")))
+            if potential_match_bet.bet_id == bet.bet_id:
+                self._pq.remove_items(queue_name, str(potential_match_bet))
+                return potential_match_bet
+        return None
