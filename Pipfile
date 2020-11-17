@@ -1,0 +1,17 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest="*"
+awscli-local="*"
+sortedcontainers="*"
+
+[packages]
+redis="*"
+boto3="*"
+kinesis-python="*"
+
+[requires]
+python_version = "3.7.7"

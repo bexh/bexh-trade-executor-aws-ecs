@@ -1,0 +1,23 @@
+{
+  "redis": {
+    "DEN": [],
+    "KAN": []
+  },
+  "kinesis": [
+    {
+      "event_id": "NOT_REAL_EVENT",
+      "sport": "football",
+      "odds": null,
+      "winning_team_abbrev": null,
+      "bets": [
+        {
+          "bet_id": 1,
+          "brokerage_id": 1,
+          "user_id": 1,
+          "amount": 20.00,
+          "status": "CANCELLED"
+        }
+      ]
+    }
+  ]
+}

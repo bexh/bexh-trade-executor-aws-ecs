@@ -1,0 +1,53 @@
+{
+  "redis": {
+    "DEN": [],
+    "KAN": []
+  },
+  "kinesis": [
+    {
+      "event_id": "202012060kan",
+      "sport": "football",
+      "odds": null,
+      "winning_team_abbrev": null,
+      "bets": [
+        {
+          "bet_id": 2,
+          "brokerage_id": 1,
+          "user_id": 1,
+          "amount": 10.00,
+          "status": "CANCELLED"
+        }
+      ]
+    },
+    {
+      "event_id": "202012060kan",
+      "sport": "football",
+      "odds": null,
+      "winning_team_abbrev": null,
+      "bets": [
+        {
+          "bet_id": 1,
+          "brokerage_id": 1,
+          "user_id": 1,
+          "amount": 20.00,
+          "status": "CANCELLED"
+        }
+      ]
+    },
+    {
+      "event_id": "202012060kan",
+      "sport": "football",
+      "odds": null,
+      "winning_team_abbrev": "KAN",
+      "bets": [
+        {
+          "bet_id": null,
+          "brokerage_id": null,
+          "user_id": null,
+          "amount": null,
+          "status": "EXPIRED_EVENT"
+        }
+      ]
+    }
+  ]
+}

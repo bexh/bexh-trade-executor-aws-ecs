@@ -1,0 +1,63 @@
+{
+  "redis": {
+    "DEN": [
+      {
+        "event_id": "202012060kan",
+        "sport": "football",
+        "bet_id": 3,
+        "brokerage_id": 1,
+        "user_id": 1,
+        "amount": 36.67,
+        "odds": 200,
+        "on_team_abbrev": "DEN"
+      }
+    ],
+    "KAN": []
+  },
+  "kinesis": [
+    {
+      "event_id": "202012060kan",
+      "sport": "football",
+      "odds": 300,
+      "winning_team_abbrev": null,
+      "bets": [
+        {
+          "bet_id": 3,
+          "brokerage_id": 1,
+          "user_id": 1,
+          "amount": 3.33,
+          "status": "PARTIALLY_EXECUTED"
+        },
+        {
+          "bet_id": 2,
+          "brokerage_id": 1,
+          "user_id": 1,
+          "amount": 10.00,
+          "status": "EXECUTED"
+        }
+      ]
+    },
+    {
+      "event_id": "202012060kan",
+      "sport": "football",
+      "odds": 200,
+      "winning_team_abbrev": null,
+      "bets": [
+        {
+          "bet_id": 3,
+          "brokerage_id": 1,
+          "user_id": 1,
+          "amount": 10.00,
+          "status": "PARTIALLY_EXECUTED"
+        },
+        {
+          "bet_id": 1,
+          "brokerage_id": 1,
+          "user_id": 1,
+          "amount": 20.00,
+          "status": "EXECUTED"
+        }
+      ]
+    }
+  ]
+}
