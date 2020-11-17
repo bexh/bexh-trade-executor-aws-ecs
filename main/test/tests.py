@@ -95,9 +95,9 @@ def compare_bets_on_exchange(expected_output_path: str, redis_client, kinesis_cl
             del exp_bet["execution_time"]
         return ExecutedBets(**exp_bet)
 
-    assert len(exp_kinesis_bets) == len(kinesis_client.streams[output_stream_name]), "Length of expected kinesis records does not match"
+    assert len(exp_kinesis_bets) == len(kinesis_client.streams.get(output_stream_name, [])), "Length of expected kinesis records does not match"
     exp_executed_bets = list(map(convert_to_executed_bets, exp_kinesis_bets))
-    actual_executed_bets = list(map(lambda x: convert_to_executed_bets(loads(x)), kinesis_client.streams[output_stream_name]))
+    actual_executed_bets = list(map(lambda x: convert_to_executed_bets(loads(x)), kinesis_client.streams.get(output_stream_name, [])))
     for i in range(len(exp_executed_bets)):
         exp_bet = exp_executed_bets[i]
         actual_bet = actual_executed_bets[i]
@@ -155,6 +155,7 @@ def execute_and_compare(
     "test_input_path,test_output_path",
     [
         ("main/test/resources/limit-bet/new-limit-bet-basic-execute.json", "main/test/resources/limit-bet/new-limit-bet-basic-execute-output.json"),
+        ("main/test/resources/limit-bet/new-limit-bet-expired-event.json", "main/test/resources/limit-bet/new-limit-bet-expired-event-output.json"),
         ("main/test/resources/limit-bet/new-limit-bet-multi-execute.json", "main/test/resources/limit-bet/new-limit-bet-multi-execute-output.json"),
         ("main/test/resources/limit-bet/new-limit-bet-not-better-than-wont-execute.json", "main/test/resources/limit-bet/new-limit-bet-not-better-than-wont-execute-output.json")
     ]
@@ -224,4 +225,3 @@ def test_cancel_bet(test_input_path, test_output_path, logger, redis_client, kin
         kinesis_client=kinesis_client,
         output_kinesis_stream_name=output_kinesis_stream_name
     )
-

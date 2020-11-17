@@ -224,6 +224,14 @@ class StatusDetails:
         }
         return dumps(dict_form)
 
+    def __repr__(self):
+        dict_form = {
+            "status": self.status,
+            "home_team_abbrev": self.home_team_abbrev,
+            "away_team_abbrev": self.away_team_abbrev
+        }
+        return dumps(dict_form)
+
 
 class ExecutedBet:
     def __init__(self, bet_id: int, brokerage_id: int, user_id: int, amount: float, status: str):
@@ -232,7 +240,7 @@ class ExecutedBet:
         :param brokerage_id:
         :param user_id:
         :param amount:
-        :param status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "NOT_ENOUGH_VOLUME"]
+        :param status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "INSUFFICIENT_VOLUME"]
         """
         self.bet_id = bet_id
         self.brokerage_id = brokerage_id
@@ -244,7 +252,7 @@ class ExecutedBet:
     def frombet(cls, bet: Bet, status: str):
         """
         :param bet:
-        :param status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "NOT_ENOUGH_VOLUME"]
+        :param status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "INSUFFICIENT_VOLUME"]
 
         :return:
         """
@@ -304,9 +312,9 @@ class ExecutedBets:
     ):
         """
         :param bet:
-        :param bet_status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "NOT_ENOUGH_VOLUME"]
+        :param bet_status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "INSUFFICIENT_VOLUME"]
         :param popped_bet:
-        :param popped_bet_status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "NOT_ENOUGH_VOLUME"]
+        :param popped_bet_status: BetStatus = Literal["EXECUTED", "PARTIALLY_EXECUTED", "CANCELLED", "EXPIRED_EVENT", "INSUFFICIENT_VOLUME"]
 
         :param popped_bet_is_on_home:
         :return:

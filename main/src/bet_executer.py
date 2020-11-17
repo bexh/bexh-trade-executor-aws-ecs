@@ -45,8 +45,17 @@ class BetExecutor:
         executed_bets = []
 
         if self._is_inactive_event(status_details):
-            # TODO: handle expired event similar to canceled bet
-            self._logger.debug("Expired event")
+            self._logger.debug(f"Expired event {status_details}")
+            non_executed_bet = ExecutedBets(
+                event_id=generic_bet.event_id,
+                sport=generic_bet.sport,
+                bets=[ExecutedBet.frombet(bet=generic_bet, status="CANCELLED")]
+            )
+            self._kinesis_client.put_record(
+                StreamName=self._output_stream_name,
+                Data=str(non_executed_bet),
+                PartitionKey=non_executed_bet.event_id
+            )
             return
 
         is_home_team = True if bet.on_team_abbrev == status_details.home_team_abbrev else False
@@ -119,8 +128,17 @@ class BetExecutor:
         popped_bets = []
 
         if self._is_inactive_event(status_details):
-            # TODO: handle expired event similar to canceled bet
-            self._logger.debug("Expired event")
+            self._logger.debug(f"Expired event {status_details}")
+            non_executed_bet = ExecutedBets(
+                event_id=generic_bet.event_id,
+                sport=generic_bet.sport,
+                bets=[ExecutedBet.frombet(bet=generic_bet, status="CANCELLED")]
+            )
+            self._kinesis_client.put_record(
+                StreamName=self._output_stream_name,
+                Data=str(non_executed_bet),
+                PartitionKey=non_executed_bet.event_id
+            )
             return
 
         is_home_team = True if bet.on_team_abbrev == status_details.home_team_abbrev else False
@@ -185,7 +203,7 @@ class BetExecutor:
             non_executed_bet = ExecutedBets(
                 event_id=generic_bet.event_id,
                 sport=generic_bet.sport,
-                bets=[ExecutedBet.frombet(bet=generic_bet, status="NOT_ENOUGH_VOLUME")]
+                bets=[ExecutedBet.frombet(bet=generic_bet, status="INSUFFICIENT_VOLUME")]
             )
             self._kinesis_client.put_record(
                 StreamName=self._output_stream_name,
