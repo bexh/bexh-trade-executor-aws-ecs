@@ -5,8 +5,8 @@ from kinesis.state import DynamoDB
 from redis import StrictRedis
 import boto3
 
-from main.src.bet_executer import BetExecutor
-from main.src.logger import LoggerFactory
+from src.bet_executer import BetExecutor
+from src.logger import LoggerFactory
 
 
 class Core:

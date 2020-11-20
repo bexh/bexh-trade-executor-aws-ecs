@@ -5,11 +5,11 @@ import boto3
 import pytest
 from redis import StrictRedis
 
-from main.test.mock_kinesis import MockKinesis
-from main.test.mock_redis import MockRedis
-from main.src.bet_executer import BetExecutor
-from main.src.logger import LoggerFactory, Logger
-from main.src.domain_model import StatusDetails, Bet, ExecutedBets, ExecutedBet
+from test.mock_kinesis import MockKinesis
+from test.mock_redis import MockRedis
+from src.bet_executer import BetExecutor
+from src.logger import LoggerFactory, Logger
+from src.domain_model import StatusDetails, Bet, ExecutedBets, ExecutedBet
 
 
 @pytest.fixture

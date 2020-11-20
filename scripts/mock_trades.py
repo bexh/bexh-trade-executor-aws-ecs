@@ -6,7 +6,7 @@ from json import dumps, load
 def mock():
     stream_name = os.environ.get("INCOMING_KINESIS_STREAM_NAME")
     kinesis_client = boto3.client("kinesis", endpoint_url=os.environ.get("ENDPOINT_URL"))
-    with open("main/test/resources/new-limit-bet-multi-execute.json") as f:
+    with open("main/test/resources/limit-bet/new-limit-bet-multi-execute.json") as f:
         payload = load(f)
     print("writing new bet record")
     kinesis_client.put_record(

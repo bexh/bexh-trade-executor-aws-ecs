@@ -1,5 +1,5 @@
-from main.src.priority_queue import PriorityQueue
-from main.src.domain_model import Bet, StatusDetails
+from src.priority_queue import PriorityQueue
+from src.domain_model import Bet, StatusDetails
 from json import loads
 
 

@@ -1,4 +1,4 @@
-from main.src.core import Core
+from src.core import Core
 
 
 def handler():
