@@ -1,4 +1,4 @@
-# set base image (host OS)
+## set base image (host OS)
 FROM python:3.7.7
 
 # set the working directory in the container
@@ -11,8 +11,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy the content of the local src directory to the working directory
-COPY main/src src/
-
+COPY src/ src/
 
 # command to run on container start
 CMD [ "python", "-m", "src.service" ]
