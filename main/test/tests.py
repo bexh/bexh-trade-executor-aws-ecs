@@ -154,10 +154,10 @@ def execute_and_compare(
 @pytest.mark.parametrize(
     "test_input_path,test_output_path",
     [
-        ("main/test/resources/limit-bet/new-limit-bet-basic-execute.json", "main/test/resources/limit-bet/new-limit-bet-basic-execute-output.json"),
-        ("main/test/resources/limit-bet/new-limit-bet-expired-event.json", "main/test/resources/limit-bet/new-limit-bet-expired-event-output.json"),
-        ("main/test/resources/limit-bet/new-limit-bet-multi-execute.json", "main/test/resources/limit-bet/new-limit-bet-multi-execute-output.json"),
-        ("main/test/resources/limit-bet/new-limit-bet-not-better-than-wont-execute.json", "main/test/resources/limit-bet/new-limit-bet-not-better-than-wont-execute-output.json")
+        ("test/resources/limit-bet/new-limit-bet-basic-execute.json", "test/resources/limit-bet/new-limit-bet-basic-execute-output.json"),
+        ("test/resources/limit-bet/new-limit-bet-expired-event.json", "test/resources/limit-bet/new-limit-bet-expired-event-output.json"),
+        ("test/resources/limit-bet/new-limit-bet-multi-execute.json", "test/resources/limit-bet/new-limit-bet-multi-execute-output.json"),
+        ("test/resources/limit-bet/new-limit-bet-not-better-than-wont-execute.json", "test/resources/limit-bet/new-limit-bet-not-better-than-wont-execute-output.json")
     ]
 )
 def test_limit_bet(test_input_path, test_output_path, logger, redis_client, kinesis_client, output_kinesis_stream_name):
@@ -174,10 +174,10 @@ def test_limit_bet(test_input_path, test_output_path, logger, redis_client, kine
 @pytest.mark.parametrize(
     "test_input_path,test_output_path",
     [
-        ("main/test/resources/market-bet/new-market-bet-will-execute.json", "main/test/resources/market-bet/new-market-bet-will-execute-output.json"),
-        ("main/test/resources/market-bet/new-market-bet-wont-execute.json", "main/test/resources/market-bet/new-market-bet-wont-execute-output.json"),
-        ("main/test/resources/market-bet/new-market-bet-multi-will-execute.json", "main/test/resources/market-bet/new-market-bet-multi-will-execute-output.json"),
-        ("main/test/resources/market-bet/new-market-bet-multi-wont-execute.json", "main/test/resources/market-bet/new-market-bet-multi-wont-execute-output.json")
+        ("test/resources/market-bet/new-market-bet-will-execute.json", "test/resources/market-bet/new-market-bet-will-execute-output.json"),
+        ("test/resources/market-bet/new-market-bet-wont-execute.json", "test/resources/market-bet/new-market-bet-wont-execute-output.json"),
+        ("test/resources/market-bet/new-market-bet-multi-will-execute.json", "test/resources/market-bet/new-market-bet-multi-will-execute-output.json"),
+        ("test/resources/market-bet/new-market-bet-multi-wont-execute.json", "test/resources/market-bet/new-market-bet-multi-wont-execute-output.json")
     ]
 )
 def test_market_bet(test_input_path, test_output_path, logger, redis_client, kinesis_client, output_kinesis_stream_name):
@@ -194,7 +194,7 @@ def test_market_bet(test_input_path, test_output_path, logger, redis_client, kin
 @pytest.mark.parametrize(
     "test_input_path,test_output_path",
     [
-        ("main/test/resources/inactive-event/inactive-event.json", "main/test/resources/inactive-event/inactive-event-output.json")
+        ("test/resources/inactive-event/inactive-event.json", "test/resources/inactive-event/inactive-event-output.json")
     ]
 )
 def test_inactive_event(test_input_path, test_output_path, logger, redis_client, kinesis_client, output_kinesis_stream_name):
@@ -211,9 +211,9 @@ def test_inactive_event(test_input_path, test_output_path, logger, redis_client,
 @pytest.mark.parametrize(
     "test_input_path,test_output_path",
     [
-        ("main/test/resources/cancel-bet/cancel-bet-basic.json", "main/test/resources/cancel-bet/cancel-bet-basic-output.json"),
-        ("main/test/resources/cancel-bet/cancel-bet-multiple-with-same-score.json", "main/test/resources/cancel-bet/cancel-bet-multiple-with-same-score-output.json"),
-        ("main/test/resources/cancel-bet/cancel-bet-not-found.json", "main/test/resources/cancel-bet/cancel-bet-not-found-ouput.json")
+        ("test/resources/cancel-bet/cancel-bet-basic.json", "test/resources/cancel-bet/cancel-bet-basic-output.json"),
+        ("test/resources/cancel-bet/cancel-bet-multiple-with-same-score.json", "test/resources/cancel-bet/cancel-bet-multiple-with-same-score-output.json"),
+        ("test/resources/cancel-bet/cancel-bet-not-found.json", "test/resources/cancel-bet/cancel-bet-not-found-ouput.json")
     ]
 )
 def test_cancel_bet(test_input_path, test_output_path, logger, redis_client, kinesis_client, output_kinesis_stream_name):

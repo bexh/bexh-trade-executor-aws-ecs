@@ -11,7 +11,10 @@ install:
 	@+pipenv install --python ${PYTHON_VERSION}
 
 test:
-	pipenv run pytest -q main/test/tests.py
+	{ \
+	cd main ;\
+	python -m pytest test/tests.py ;\
+	}
 
 docker-up:
 	{ \
