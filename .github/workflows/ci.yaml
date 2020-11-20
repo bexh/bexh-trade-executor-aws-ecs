@@ -1,6 +1,6 @@
 name: bexh-trade-executor-aws-ecs CI
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:

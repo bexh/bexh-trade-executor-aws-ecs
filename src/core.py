@@ -27,8 +27,8 @@ class Core:
         try:
             self._setup()
 
-            state = DynamoDB(table_name=self._kcl_state_manager_table_name, endpoint_url=self._endpoint_url)
-            consumer = KinesisConsumer(stream_name=self._stream_name, state=state, endpoint_url=self._endpoint_url)
+            state = DynamoDB(table_name=self._kcl_state_manager_table_name)
+            consumer = KinesisConsumer(stream_name=self._stream_name, state=state)
             for message in consumer:
                 self._logger.debug(message)
                 self._bet_executor.handle_record(message)
