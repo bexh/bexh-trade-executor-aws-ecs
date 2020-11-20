@@ -1,5 +1,5 @@
 from json import dumps
-from main.src.utils import get_current_utc_iso
+from src.utils import get_current_utc_iso
 
 
 class CancelBet:

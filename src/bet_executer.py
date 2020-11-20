@@ -1,7 +1,7 @@
-from main.src.exchange import Exchange
-from main.src.logger import Logger
-from main.src.domain_model import Bet, CancelBet, InactiveEvent, LimitBet, MarketBet, ExecutedBet, ExecutedBets
-from json import loads, dumps
+from src.exchange import Exchange
+from src.logger import Logger
+from src.domain_model import Bet, CancelBet, InactiveEvent, LimitBet, MarketBet, ExecutedBet, ExecutedBets
+from json import loads
 import copy
 
 

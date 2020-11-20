@@ -5,13 +5,14 @@ export PYTHON_VERSION := 3.7.7
 #SHELL := /bin/bash
 
 install-dev:
-	@+pipenv install --python ${PYTHON_VERSION} --dev
+	@+pipenv install --python ${PYTHON_VERSION} --dev -e .
 
 install:
-	@+pipenv install --python ${PYTHON_VERSION}
+	@+pipenv install --python ${PYTHON_VERSION} -e .
 
+.PHONY: test
 test:
-	pipenv run pytest -q main/test/tests.py
+	pipenv run pytest
 
 docker-up:
 	{ \
