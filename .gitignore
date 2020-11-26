@@ -8,3 +8,5 @@ main/__pycache__/
 tmp/
 .pytest_cache
 .eggs/
+build/
+my_package.egg-info/

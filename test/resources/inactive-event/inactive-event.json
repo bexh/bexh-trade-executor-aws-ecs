@@ -37,6 +37,8 @@
       "sport": "football",
       "home_team_abbrev": "DEN",
       "away_team_abbrev": "KAN",
+      "home_team_name": "Denver Broncos",
+      "away_team_name": "Kansas City Chiefs",
       "home_team_score": 33,
       "away_team_score": 31,
       "winning_team_abbrev": "KAN",
